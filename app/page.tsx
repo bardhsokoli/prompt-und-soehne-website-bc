@@ -14,7 +14,7 @@ import { CookieConsent } from "@/components/cookie-consent"
 export default function HomePage() {
   return (
     <LanguageProvider>
-      <main className="min-h-screen bg-background">
+      <main className="relative min-h-screen bg-background">
         <Navigation />
         <HeroSection />
         <StatementSection />

@@ -1,36 +1,61 @@
 "use client"
 
-import { useRef } from "react"
-import { motion, useScroll, useTransform } from "framer-motion"
+import { useEffect, useRef, useState } from "react"
 
 export function HeroSection() {
   const sectionRef = useRef<HTMLElement | null>(null)
+  const [scrollProgress, setScrollProgress] = useState(0)
 
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start start", "end end"],
-  })
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!sectionRef.current) return
+      
+      const rect = sectionRef.current.getBoundingClientRect()
+      const sectionHeight = sectionRef.current.offsetHeight
+      const viewportHeight = window.innerHeight
+      
+      // Calculate progress: 0 when section starts at top, 1 when section ends
+      const scrolled = -rect.top
+      const scrollableDistance = sectionHeight - viewportHeight
+      const progress = Math.min(Math.max(scrolled / scrollableDistance, 0), 1)
+      
+      setScrollProgress(progress)
+    }
 
-  const mediaWidth = useTransform(scrollYProgress, [0, 1], ["280px", "100vw"])
-  const mediaHeight = useTransform(scrollYProgress, [0, 1], ["420px", "100vh"])
-  const mediaBorderRadius = useTransform(scrollYProgress, [0, 1], ["24px", "0px"])
-  const mediaScale = useTransform(scrollYProgress, [0, 1], [1, 1.08])
+    window.addEventListener("scroll", handleScroll, { passive: true })
+    handleScroll() // Initial calculation
+    
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [])
 
-  const headlineTopX = useTransform(scrollYProgress, [0, 1], ["0px", "-180px"])
-  const headlineBottomX = useTransform(scrollYProgress, [0, 1], ["0px", "180px"])
+  // Interpolate values based on scroll progress
+  const lerp = (start: number, end: number, t: number) => start + (end - start) * t
 
-  const subTopX = useTransform(scrollYProgress, [0, 1], ["0px", "-120px"])
-  const subBottomX = useTransform(scrollYProgress, [0, 1], ["0px", "120px"])
+  const mediaWidth = lerp(280, window.innerWidth || 1920, scrollProgress)
+  const mediaHeight = lerp(420, window.innerHeight || 1080, scrollProgress)
+  const mediaBorderRadius = lerp(24, 0, scrollProgress)
+  const mediaScale = lerp(1, 1.08, scrollProgress)
 
-  const overlayOpacity = useTransform(scrollYProgress, [0, 1], [0.35, 0.15])
-  const bgOpacity = useTransform(scrollYProgress, [0, 0.6, 1], [1, 0.75, 0.55])
+  const headlineTopX = lerp(0, -180, scrollProgress)
+  const headlineBottomX = lerp(0, 180, scrollProgress)
+
+  const subTopX = lerp(0, -120, scrollProgress)
+  const subBottomX = lerp(0, 120, scrollProgress)
+
+  const overlayOpacity = lerp(0.35, 0.15, scrollProgress)
+  
+  // Background opacity: 1 -> 0.75 at 60% -> 0.55 at 100%
+  const bgOpacity = scrollProgress <= 0.6 
+    ? lerp(1, 0.75, scrollProgress / 0.6)
+    : lerp(0.75, 0.55, (scrollProgress - 0.6) / 0.4)
 
   return (
     <section ref={sectionRef} className="relative h-[220vh] bg-black">
       <div className="sticky top-0 h-screen overflow-hidden">
-        <motion.div
+        {/* Background image */}
+        <div
           style={{ opacity: bgOpacity }}
-          className="absolute inset-0 z-0"
+          className="absolute inset-0 z-0 transition-opacity duration-75"
         >
           <img
             src="https://promptundsoehne.com/oclub_crowd.jpg"
@@ -38,17 +63,18 @@ export function HeroSection() {
             className="h-full w-full object-cover"
           />
           <div className="absolute inset-0 bg-black/55" />
-        </motion.div>
+        </div>
 
         <div className="relative z-20 flex h-full items-center justify-center px-4">
-          <motion.div
+          {/* Video container */}
+          <div
             style={{
-              width: mediaWidth,
-              height: mediaHeight,
-              borderRadius: mediaBorderRadius,
-              scale: mediaScale,
+              width: `${mediaWidth}px`,
+              height: `${mediaHeight}px`,
+              borderRadius: `${mediaBorderRadius}px`,
+              transform: `translate(-50%, -50%) scale(${mediaScale})`,
             }}
-            className="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 overflow-hidden shadow-2xl will-change-transform"
+            className="absolute left-1/2 top-1/2 z-10 overflow-hidden shadow-2xl will-change-transform"
           >
             <video
               src="https://promptundsoehne.com/header-video.mp4"
@@ -60,32 +86,43 @@ export function HeroSection() {
               preload="auto"
               className="h-full w-full object-cover"
             />
-            <motion.div
+            <div
               style={{ opacity: overlayOpacity }}
-              className="absolute inset-0 bg-black"
+              className="absolute inset-0 bg-black transition-opacity duration-75"
             />
-          </motion.div>
+          </div>
 
+          {/* Text content */}
           <div className="relative z-30 flex max-w-6xl flex-col items-center justify-center text-center text-white">
             <div className="pointer-events-none space-y-0 leading-none">
-              <motion.h1
-                style={{ x: headlineTopX }}
-                className="text-5xl font-semibold tracking-tight sm:text-7xl md:text-8xl lg:text-[9rem]"
+              <h1
+                style={{ transform: `translateX(${headlineTopX}px)` }}
+                className="text-5xl font-semibold tracking-tight transition-transform duration-75 sm:text-7xl md:text-8xl lg:text-[9rem]"
               >
                 Prompt &
-              </motion.h1>
+              </h1>
 
-              <motion.h1
-                style={{ x: headlineBottomX }}
-                className="text-5xl font-semibold tracking-tight sm:text-7xl md:text-8xl lg:text-[9rem]"
+              <h1
+                style={{ transform: `translateX(${headlineBottomX}px)` }}
+                className="text-5xl font-semibold tracking-tight transition-transform duration-75 sm:text-7xl md:text-8xl lg:text-[9rem]"
               >
                 Söhne
-              </motion.h1>
+              </h1>
             </div>
 
             <div className="mt-8 space-y-1 text-center text-sm uppercase tracking-[0.28em] text-white/75 sm:mt-10 sm:text-base">
-              <motion.p style={{ x: subTopX }}>Design. Motion. AI.</motion.p>
-              <motion.p style={{ x: subBottomX }}>Built for attention.</motion.p>
+              <p 
+                style={{ transform: `translateX(${subTopX}px)` }}
+                className="transition-transform duration-75"
+              >
+                Design. Motion. AI.
+              </p>
+              <p 
+                style={{ transform: `translateX(${subBottomX}px)` }}
+                className="transition-transform duration-75"
+              >
+                Built for attention.
+              </p>
             </div>
           </div>
         </div>
