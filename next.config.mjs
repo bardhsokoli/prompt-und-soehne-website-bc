@@ -5,6 +5,12 @@ const nextConfig = {
   },
   images: {
     unoptimized: true,
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "pub-7ab10ef61efd42148b5549910673d06a.r2.dev",
+      },
+    ],
   },
 }
 

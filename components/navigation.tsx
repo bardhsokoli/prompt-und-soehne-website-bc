@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { Menu, X } from "lucide-react"
+import Image from "next/image"
+import { Menu } from "lucide-react"
 import { useLanguage } from "@/lib/language-context"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
@@ -59,9 +60,17 @@ export function Navigation() {
           {/* Logo - Centered */}
           <Link
             href="/"
-            className="absolute left-1/2 -translate-x-1/2 text-lg font-light tracking-[0.3em] uppercase"
+            className="absolute left-1/2 -translate-x-1/2"
           >
-            PROMPT & SÖHNE
+            <Image
+              src="/logo.svg"
+              alt="PROMPT & SÖHNE"
+              width={200}
+              height={40}
+              className="h-8 w-auto text-foreground"
+              style={{ filter: "invert(0)" }}
+              priority
+            />
           </Link>
 
           {/* Desktop Nav Links - Far Right */}

@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { Instagram, Linkedin } from "lucide-react"
 import { useLanguage } from "@/lib/language-context"
 
@@ -25,11 +26,15 @@ export function Footer() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col items-center gap-8">
           {/* Logo */}
-          <Link
-            href="/"
-            className="text-xl font-light tracking-[0.3em] uppercase text-foreground"
-          >
-            PROMPT & SÖHNE
+          <Link href="/">
+            <Image
+              src="/logo.svg"
+              alt="PROMPT & SÖHNE"
+              width={200}
+              height={40}
+              className="h-10 w-auto"
+              priority
+            />
           </Link>
 
           {/* Nav Links */}
@@ -80,7 +85,6 @@ export function Footer() {
             ))}
             <button
               onClick={() => {
-                // Trigger cookie settings modal
                 window.dispatchEvent(new CustomEvent("openCookieSettings"))
               }}
               className="text-xs font-light text-muted-foreground hover:text-foreground transition-colors"
