@@ -4,38 +4,54 @@ import { useEffect, useRef, useState } from "react"
 
 export function HeroSection() {
   const sectionRef = useRef<HTMLElement | null>(null)
+  const tickingRef = useRef(false)
+
   const [progress, setProgress] = useState(0)
-  const [viewportWidth, setViewportWidth] = useState(1440)
+  const [viewport, setViewport] = useState({ width: 1440, height: 900 })
 
   useEffect(() => {
     const updateViewport = () => {
-      setViewportWidth(window.innerWidth)
+      setViewport({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      })
     }
 
-    const handleScroll = () => {
-      if (!sectionRef.current) return
+    const updateScrollProgress = () => {
+      if (!sectionRef.current) {
+        tickingRef.current = false
+        return
+      }
 
       const rect = sectionRef.current.getBoundingClientRect()
       const total = rect.height - window.innerHeight
       const current = Math.min(Math.max(-rect.top, 0), total)
-      const nextProgress = total > 0 ? current / total : 0
+      const next = total > 0 ? current / total : 0
 
-      setProgress(nextProgress)
+      setProgress(next)
+      tickingRef.current = false
+    }
+
+    const onScroll = () => {
+      if (!tickingRef.current) {
+        window.requestAnimationFrame(updateScrollProgress)
+        tickingRef.current = true
+      }
     }
 
     updateViewport()
-    handleScroll()
+    updateScrollProgress()
 
     window.addEventListener("resize", updateViewport)
-    window.addEventListener("scroll", handleScroll, { passive: true })
+    window.addEventListener("scroll", onScroll, { passive: true })
 
     return () => {
       window.removeEventListener("resize", updateViewport)
-      window.removeEventListener("scroll", handleScroll)
+      window.removeEventListener("scroll", onScroll)
     }
   }, [])
 
-  const isMobile = viewportWidth < 768
+  const isMobile = viewport.width < 768
 
   const lerp = (start: number, end: number, t: number) => {
     return start + (end - start) * t
@@ -44,27 +60,25 @@ export function HeroSection() {
   const eased = 1 - Math.pow(1 - progress, 3)
 
   const mediaWidth = isMobile
-    ? lerp(280, viewportWidth, eased)
-    : lerp(320, viewportWidth, eased)
+    ? lerp(280, viewport.width, eased)
+    : lerp(320, viewport.width, eased)
 
   const mediaHeight = isMobile
-    ? lerp(420, window.innerHeight || 900, eased)
-    : lerp(500, window.innerHeight || 900, eased)
+    ? lerp(420, viewport.height, eased)
+    : lerp(500, viewport.height, eased)
 
   const mediaRadius = lerp(24, 0, eased)
-  const mediaScale = lerp(1, 1.04, eased)
 
   const titleMove = isMobile
-    ? lerp(0, viewportWidth * 0.34, eased)
-    : lerp(0, viewportWidth * 0.42, eased)
+    ? lerp(0, viewport.width * 0.38, eased)
+    : lerp(0, viewport.width * 0.46, eased)
 
   const subMove = isMobile
-    ? lerp(0, viewportWidth * 0.2, eased)
-    : lerp(0, viewportWidth * 0.24, eased)
+    ? lerp(0, viewport.width * 0.2, eased)
+    : lerp(0, viewport.width * 0.24, eased)
 
-  const backgroundOpacity = lerp(0.95, 0.58, eased)
-  const backgroundScale = lerp(1, 1.06, eased)
-  const mediaOverlayOpacity = lerp(0.18, 0.08, eased)
+  const backgroundOpacity = lerp(0.82, 0.5, eased)
+  const mediaOverlayOpacity = lerp(0.1, 0.03, eased)
 
   return (
     <section ref={sectionRef} className="relative h-[200vh] bg-black">
@@ -76,12 +90,11 @@ export function HeroSection() {
             className="h-full w-full object-cover"
             style={{
               opacity: backgroundOpacity,
-              transform: `scale(${backgroundScale})`,
-              transition: "transform 60ms linear, opacity 60ms linear",
+              transform: `scale(${lerp(1, 1.04, eased)})`,
             }}
           />
-          <div className="absolute inset-0 bg-black/35" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.08),rgba(0,0,0,0.55))]" />
+          <div className="absolute inset-0 bg-black/20" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.06),rgba(0,0,0,0.45))]" />
         </div>
 
         <div className="relative z-20 flex h-full items-center justify-center px-4">
@@ -91,9 +104,7 @@ export function HeroSection() {
               width: `${mediaWidth}px`,
               height: `${mediaHeight}px`,
               borderRadius: `${mediaRadius}px`,
-              transform: `translate(-50%, -50%) scale(${mediaScale})`,
-              transition:
-                "width 60ms linear, height 60ms linear, transform 60ms linear, border-radius 60ms linear",
+              transform: "translate(-50%, -50%)",
             }}
           >
             <video
@@ -108,10 +119,7 @@ export function HeroSection() {
             />
             <div
               className="absolute inset-0 bg-black"
-              style={{
-                opacity: mediaOverlayOpacity,
-                transition: "opacity 60ms linear",
-              }}
+              style={{ opacity: mediaOverlayOpacity }}
             />
           </div>
 
@@ -121,10 +129,9 @@ export function HeroSection() {
                 className="font-semibold"
                 style={{
                   transform: `translateX(-${titleMove}px)`,
-                  transition: "transform 60ms linear",
                   fontSize: isMobile
-                    ? "clamp(2.6rem, 9vw, 4.4rem)"
-                    : "clamp(4rem, 7vw, 7rem)",
+                    ? "clamp(2.2rem, 7.5vw, 3.5rem)"
+                    : "clamp(2.8rem, 4.8vw, 5.2rem)",
                 }}
               >
                 Built To Be Seen
@@ -134,23 +141,21 @@ export function HeroSection() {
                 className="font-semibold"
                 style={{
                   transform: `translateX(${titleMove}px)`,
-                  transition: "transform 60ms linear",
                   fontSize: isMobile
-                    ? "clamp(2.6rem, 9vw, 4.4rem)"
-                    : "clamp(4rem, 7vw, 7rem)",
+                    ? "clamp(2.2rem, 7.5vw, 3.5rem)"
+                    : "clamp(2.8rem, 4.8vw, 5.2rem)",
                 }}
               >
                 Made To Be Felt
               </div>
             </div>
 
-            <div className="mt-7 space-y-1 text-center uppercase text-white/78 sm:mt-9">
+            <div className="mt-7 space-y-1 text-center uppercase text-white/80 sm:mt-9">
               <p
                 style={{
                   transform: `translateX(-${subMove}px)`,
-                  transition: "transform 60ms linear",
-                  fontSize: isMobile ? "0.72rem" : "0.9rem",
-                  letterSpacing: isMobile ? "0.28em" : "0.38em",
+                  fontSize: isMobile ? "0.7rem" : "0.82rem",
+                  letterSpacing: isMobile ? "0.24em" : "0.34em",
                 }}
               >
                 Design. Motion. AI.
@@ -158,9 +163,8 @@ export function HeroSection() {
               <p
                 style={{
                   transform: `translateX(${subMove}px)`,
-                  transition: "transform 60ms linear",
-                  fontSize: isMobile ? "0.72rem" : "0.9rem",
-                  letterSpacing: isMobile ? "0.28em" : "0.38em",
+                  fontSize: isMobile ? "0.7rem" : "0.82rem",
+                  letterSpacing: isMobile ? "0.24em" : "0.34em",
                 }}
               >
                 Built For Attention.
