@@ -80,7 +80,7 @@ export function HeroSection() {
   const backgroundOpacity = lerp(0.82, 0.5, eased)
   const mediaOverlayOpacity = lerp(0.1, 0.03, eased)
   const titleOpacity = lerp(1, 0, Math.min(progress / 0.78, 1))
-  const subOpacity = lerp(1, 0.2, Math.min(progress / 0.9, 1))
+  const subOpacity = lerp(1, 0, Math.min(progress / 0.72, 1))
 
   return (
     <section ref={sectionRef} className="relative h-[200vh] bg-black">
@@ -179,10 +179,6 @@ export function HeroSection() {
               </p>
             </div>
           </div>
-        </div>
-
-        <div className="absolute bottom-8 left-1/2 z-30 -translate-x-1/2 text-center text-[10px] uppercase tracking-[0.35em] text-white/45 sm:text-xs">
-          Scroll
         </div>
       </div>
     </section>
