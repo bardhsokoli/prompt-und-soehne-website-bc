@@ -52,7 +52,7 @@ export function HeroSection() {
   const subTopX = lerp(0, -80, scrollProgress)
   const subBottomX = lerp(0, 80, scrollProgress)
 
-  const overlayOpacity = lerp(0.25, 0.1, scrollProgress)
+  const overlayOpacity = lerp(0.15, 0.05, scrollProgress)
 
   return (
     <section ref={sectionRef} className="relative h-[220vh] bg-black">
@@ -67,19 +67,16 @@ export function HeroSection() {
           }}
           className="absolute left-1/2 top-1/2 z-10 overflow-hidden shadow-2xl will-change-transform"
         >
-          {/* Vimeo embed */}
-          <iframe
-            src="https://player.vimeo.com/video/1179317883?background=1&autoplay=1&loop=1&muted=1&controls=0"
-            className="absolute inset-0 h-full w-full"
-            style={{ 
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-              pointerEvents: 'none',
-            }}
-            allow="autoplay; fullscreen"
-            frameBorder="0"
-          />
+          {/* MP4 Video */}
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="absolute inset-0 h-full w-full object-cover"
+          >
+            <source src="https://pub-7ab10ef61efd42148b5549910673d06a.r2.dev/header-video.mp4" type="video/mp4" />
+          </video>
           {/* Light overlay for text readability */}
           <div
             style={{ opacity: overlayOpacity }}
