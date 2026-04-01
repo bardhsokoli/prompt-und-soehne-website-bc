@@ -2,119 +2,166 @@
 
 import { useEffect, useRef, useState } from "react"
 
-// Scroll-driven hero section with expanding video
-
 export function HeroSection() {
   const sectionRef = useRef<HTMLElement | null>(null)
-  const [scrollProgress, setScrollProgress] = useState(0)
-  const [windowSize, setWindowSize] = useState({ width: 1920, height: 1080 })
+  const [progress, setProgress] = useState(0)
+  const [viewportWidth, setViewportWidth] = useState(1440)
 
   useEffect(() => {
-    const updateWindowSize = () => {
-      setWindowSize({ width: window.innerWidth, height: window.innerHeight })
-    }
-    
-    const handleScroll = () => {
-      if (!sectionRef.current) return
-      
-      const rect = sectionRef.current.getBoundingClientRect()
-      const sectionHeight = sectionRef.current.offsetHeight
-      const viewportHeight = window.innerHeight
-      
-      const scrolled = -rect.top
-      const scrollableDistance = sectionHeight - viewportHeight
-      const progress = Math.min(Math.max(scrolled / scrollableDistance, 0), 1)
-      
-      setScrollProgress(progress)
+    const updateViewport = () => {
+      setViewportWidth(window.innerWidth)
     }
 
-    updateWindowSize()
-    window.addEventListener("resize", updateWindowSize)
-    window.addEventListener("scroll", handleScroll, { passive: true })
+    const handleScroll = () => {
+      if (!sectionRef.current) return
+
+      const rect = sectionRef.current.getBoundingClientRect()
+      const total = rect.height - window.innerHeight
+      const current = Math.min(Math.max(-rect.top, 0), total)
+      const nextProgress = total > 0 ? current / total : 0
+
+      setProgress(nextProgress)
+    }
+
+    updateViewport()
     handleScroll()
-    
+
+    window.addEventListener("resize", updateViewport)
+    window.addEventListener("scroll", handleScroll, { passive: true })
+
     return () => {
-      window.removeEventListener("resize", updateWindowSize)
+      window.removeEventListener("resize", updateViewport)
       window.removeEventListener("scroll", handleScroll)
     }
   }, [])
 
-  const lerp = (start: number, end: number, t: number) => start + (end - start) * t
+  const isMobile = viewportWidth < 768
 
-  const mediaWidth = lerp(320, windowSize.width, scrollProgress)
-  const mediaHeight = lerp(480, windowSize.height, scrollProgress)
-  const mediaBorderRadius = lerp(20, 0, scrollProgress)
-  const mediaScale = lerp(1, 1.02, scrollProgress)
+  const lerp = (start: number, end: number, t: number) => {
+    return start + (end - start) * t
+  }
 
-  const headlineTopX = lerp(0, -120, scrollProgress)
-  const headlineBottomX = lerp(0, 120, scrollProgress)
+  const eased = 1 - Math.pow(1 - progress, 3)
 
-  const subTopX = lerp(0, -80, scrollProgress)
-  const subBottomX = lerp(0, 80, scrollProgress)
+  const mediaWidth = isMobile
+    ? lerp(280, viewportWidth, eased)
+    : lerp(320, viewportWidth, eased)
 
-  const overlayOpacity = lerp(0.15, 0.05, scrollProgress)
+  const mediaHeight = isMobile
+    ? lerp(420, window.innerHeight || 900, eased)
+    : lerp(500, window.innerHeight || 900, eased)
+
+  const mediaRadius = lerp(24, 0, eased)
+  const mediaScale = lerp(1, 1.04, eased)
+
+  const titleMove = isMobile
+    ? lerp(0, viewportWidth * 0.34, eased)
+    : lerp(0, viewportWidth * 0.42, eased)
+
+  const subMove = isMobile
+    ? lerp(0, viewportWidth * 0.2, eased)
+    : lerp(0, viewportWidth * 0.24, eased)
+
+  const backgroundOpacity = lerp(0.95, 0.58, eased)
+  const backgroundScale = lerp(1, 1.06, eased)
+  const mediaOverlayOpacity = lerp(0.18, 0.08, eased)
 
   return (
-    <section ref={sectionRef} className="relative h-[220vh] bg-black">
-      <div className="sticky top-0 h-screen overflow-hidden">
-        {/* Video container - now positioned as the main visual */}
-        <div
-          style={{
-            width: `${mediaWidth}px`,
-            height: `${mediaHeight}px`,
-            borderRadius: `${mediaBorderRadius}px`,
-            transform: `translate(-50%, -50%) scale(${mediaScale})`,
-          }}
-          className="absolute left-1/2 top-1/2 z-10 overflow-hidden shadow-2xl will-change-transform"
-        >
-          {/* MP4 Video */}
-          <video
-            autoPlay
-            muted
-            loop
-            playsInline
-            className="absolute inset-0 h-full w-full object-cover"
-          >
-            <source src="https://pub-7ab10ef61efd42148b5549910673d06a.r2.dev/header-video.mp4" type="video/mp4" />
-          </video>
-          {/* Light overlay for text readability */}
-          <div
-            style={{ opacity: overlayOpacity }}
-            className="absolute inset-0 bg-black pointer-events-none"
+    <section ref={sectionRef} className="relative h-[200vh] bg-black">
+      <div className="sticky top-0 h-screen overflow-hidden bg-black">
+        <div className="absolute inset-0 z-0">
+          <img
+            src="https://promptundsoehne.com/oclub_crowd.jpg"
+            alt="Prompt & Söhne background"
+            className="h-full w-full object-cover"
+            style={{
+              opacity: backgroundOpacity,
+              transform: `scale(${backgroundScale})`,
+              transition: "transform 60ms linear, opacity 60ms linear",
+            }}
           />
+          <div className="absolute inset-0 bg-black/35" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.08),rgba(0,0,0,0.55))]" />
         </div>
 
-        {/* Text content - positioned over the video */}
-        <div className="absolute inset-0 z-20 flex items-center justify-center px-4 pointer-events-none">
-          <div className="flex flex-col items-center justify-center text-center text-white">
-            {/* Main headline - smaller and more elegant */}
-            <div className="space-y-1 leading-tight">
-              <h1
-                style={{ transform: `translateX(${headlineTopX}px)` }}
-                className="text-3xl font-light tracking-tight transition-transform duration-75 sm:text-4xl md:text-5xl lg:text-6xl"
+        <div className="relative z-20 flex h-full items-center justify-center px-4">
+          <div
+            className="absolute left-1/2 top-1/2 z-10 overflow-hidden shadow-2xl"
+            style={{
+              width: `${mediaWidth}px`,
+              height: `${mediaHeight}px`,
+              borderRadius: `${mediaRadius}px`,
+              transform: `translate(-50%, -50%) scale(${mediaScale})`,
+              transition:
+                "width 60ms linear, height 60ms linear, transform 60ms linear, border-radius 60ms linear",
+            }}
+          >
+            <video
+              src="https://pub-7ab10ef61efd42148b5549910673d06a.r2.dev/header-video.mp4"
+              poster="https://promptundsoehne.com/oclub_crowd.jpg"
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="auto"
+              className="h-full w-full object-cover"
+            />
+            <div
+              className="absolute inset-0 bg-black"
+              style={{
+                opacity: mediaOverlayOpacity,
+                transition: "opacity 60ms linear",
+              }}
+            />
+          </div>
+
+          <div className="relative z-30 flex max-w-6xl flex-col items-center justify-center text-center text-white">
+            <div className="pointer-events-none leading-[0.92] tracking-tight">
+              <div
+                className="font-semibold"
+                style={{
+                  transform: `translateX(-${titleMove}px)`,
+                  transition: "transform 60ms linear",
+                  fontSize: isMobile
+                    ? "clamp(2.6rem, 9vw, 4.4rem)"
+                    : "clamp(4rem, 7vw, 7rem)",
+                }}
               >
                 Built To Be Seen
-              </h1>
+              </div>
 
-              <h1
-                style={{ transform: `translateX(${headlineBottomX}px)` }}
-                className="text-3xl font-light tracking-tight transition-transform duration-75 sm:text-4xl md:text-5xl lg:text-6xl"
+              <div
+                className="font-semibold"
+                style={{
+                  transform: `translateX(${titleMove}px)`,
+                  transition: "transform 60ms linear",
+                  fontSize: isMobile
+                    ? "clamp(2.6rem, 9vw, 4.4rem)"
+                    : "clamp(4rem, 7vw, 7rem)",
+                }}
               >
                 Made To Be Felt
-              </h1>
+              </div>
             </div>
 
-            {/* Supporting text */}
-            <div className="mt-8 space-y-1 text-center text-xs uppercase tracking-[0.3em] text-white/70 sm:mt-10 sm:text-sm">
-              <p 
-                style={{ transform: `translateX(${subTopX}px)` }}
-                className="transition-transform duration-75"
+            <div className="mt-7 space-y-1 text-center uppercase text-white/78 sm:mt-9">
+              <p
+                style={{
+                  transform: `translateX(-${subMove}px)`,
+                  transition: "transform 60ms linear",
+                  fontSize: isMobile ? "0.72rem" : "0.9rem",
+                  letterSpacing: isMobile ? "0.28em" : "0.38em",
+                }}
               >
                 Design. Motion. AI.
               </p>
-              <p 
-                style={{ transform: `translateX(${subBottomX}px)` }}
-                className="transition-transform duration-75"
+              <p
+                style={{
+                  transform: `translateX(${subMove}px)`,
+                  transition: "transform 60ms linear",
+                  fontSize: isMobile ? "0.72rem" : "0.9rem",
+                  letterSpacing: isMobile ? "0.28em" : "0.38em",
+                }}
               >
                 Built For Attention.
               </p>
@@ -122,8 +169,7 @@ export function HeroSection() {
           </div>
         </div>
 
-        {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 z-30 -translate-x-1/2 text-center text-xs uppercase tracking-[0.3em] text-white/40 sm:text-sm">
+        <div className="absolute bottom-8 left-1/2 z-30 -translate-x-1/2 text-center text-[10px] uppercase tracking-[0.35em] text-white/45 sm:text-xs">
           Scroll
         </div>
       </div>
