@@ -52,7 +52,7 @@ const translations = {
 
     // Contact
     "contact.title": "Get in Touch",
-    "contact.subtitle": "Ready to transform your brand? Let&apos;s talk.",
+    "contact.subtitle": "Ready to transform your brand? Let's talk.",
     "contact.name": "Name",
     "contact.email": "Email",
     "contact.message": "Message",
