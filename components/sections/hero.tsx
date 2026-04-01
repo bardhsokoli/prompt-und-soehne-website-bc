@@ -79,13 +79,15 @@ export function HeroSection() {
 
   const backgroundOpacity = lerp(0.82, 0.5, eased)
   const mediaOverlayOpacity = lerp(0.1, 0.03, eased)
+  const titleOpacity = lerp(1, 0, Math.min(progress / 0.78, 1))
+  const subOpacity = lerp(1, 0.2, Math.min(progress / 0.9, 1))
 
   return (
     <section ref={sectionRef} className="relative h-[200vh] bg-black">
       <div className="sticky top-0 h-screen overflow-hidden bg-black">
         <div className="absolute inset-0 z-0">
           <img
-            src="https://promptundsoehne.com/oclub_crowd.jpg"
+            src="https://pub-7ab10ef61efd42148b5549910673d06a.r2.dev/oclub_crowd.jpg"
             alt="Prompt & Söhne background"
             className="h-full w-full object-cover"
             style={{
@@ -109,7 +111,7 @@ export function HeroSection() {
           >
             <video
               src="https://pub-7ab10ef61efd42148b5549910673d06a.r2.dev/header-video.mp4"
-              poster="https://promptundsoehne.com/oclub_crowd.jpg"
+              poster="https://pub-7ab10ef61efd42148b5549910673d06a.r2.dev/oclub_crowd.jpg"
               autoPlay
               muted
               loop
@@ -124,14 +126,17 @@ export function HeroSection() {
           </div>
 
           <div className="relative z-30 flex max-w-6xl flex-col items-center justify-center text-center text-white">
-            <div className="pointer-events-none leading-[0.92] tracking-tight">
+            <div
+              className="pointer-events-none leading-[0.92] tracking-tight"
+              style={{ opacity: titleOpacity }}
+            >
               <div
                 className="font-semibold"
                 style={{
                   transform: `translateX(-${titleMove}px)`,
                   fontSize: isMobile
-                    ? "clamp(2.2rem, 7.5vw, 3.5rem)"
-                    : "clamp(2.8rem, 4.8vw, 5.2rem)",
+                    ? "clamp(1.8rem, 6.2vw, 2.8rem)"
+                    : "clamp(2.2rem, 3.8vw, 4.2rem)",
                 }}
               >
                 Built To Be Seen
@@ -142,15 +147,18 @@ export function HeroSection() {
                 style={{
                   transform: `translateX(${titleMove}px)`,
                   fontSize: isMobile
-                    ? "clamp(2.2rem, 7.5vw, 3.5rem)"
-                    : "clamp(2.8rem, 4.8vw, 5.2rem)",
+                    ? "clamp(1.8rem, 6.2vw, 2.8rem)"
+                    : "clamp(2.2rem, 3.8vw, 4.2rem)",
                 }}
               >
                 Made To Be Felt
               </div>
             </div>
 
-            <div className="mt-7 space-y-1 text-center uppercase text-white/80 sm:mt-9">
+            <div
+              className="mt-7 space-y-1 text-center uppercase text-white/80 sm:mt-9"
+              style={{ opacity: subOpacity }}
+            >
               <p
                 style={{
                   transform: `translateX(-${subMove}px)`,
