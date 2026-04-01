@@ -1,15 +1,7 @@
 'use client';
 
-import {
-  useEffect,
-  useRef,
-  useState,
-  ReactNode,
-  TouchEvent,
-  WheelEvent,
-} from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import Image from 'next/image';
-import { motion } from 'framer-motion';
 
 interface ScrollExpandMediaProps {
   mediaType?: 'video' | 'image' | 'vimeo';
@@ -49,7 +41,7 @@ const ScrollExpandMedia = ({
   }, [mediaType]);
 
   useEffect(() => {
-    const handleWheel = (e: WheelEvent) => {
+    const handleWheel = (e: globalThis.WheelEvent) => {
       if (mediaFullyExpanded && e.deltaY < 0 && window.scrollY <= 5) {
         setMediaFullyExpanded(false);
         e.preventDefault();
@@ -71,11 +63,11 @@ const ScrollExpandMedia = ({
       }
     };
 
-    const handleTouchStart = (e: TouchEvent) => {
+    const handleTouchStart = (e: globalThis.TouchEvent) => {
       setTouchStartY(e.touches[0].clientY);
     };
 
-    const handleTouchMove = (e: TouchEvent) => {
+    const handleTouchMove = (e: globalThis.TouchEvent) => {
       if (!touchStartY) return;
 
       const touchY = e.touches[0].clientY;
@@ -86,8 +78,7 @@ const ScrollExpandMedia = ({
         e.preventDefault();
       } else if (!mediaFullyExpanded) {
         e.preventDefault();
-        // Increase sensitivity for mobile, especially when scrolling back
-        const scrollFactor = deltaY < 0 ? 0.008 : 0.005; // Higher sensitivity for scrolling back
+        const scrollFactor = deltaY < 0 ? 0.008 : 0.005;
         const scrollDelta = deltaY * scrollFactor;
         const newProgress = Math.min(
           Math.max(scrollProgress + scrollDelta, 0),
@@ -116,37 +107,18 @@ const ScrollExpandMedia = ({
       }
     };
 
-    window.addEventListener('wheel', handleWheel as unknown as EventListener, {
-      passive: false,
-    });
-    window.addEventListener('scroll', handleScroll as EventListener);
-    window.addEventListener(
-      'touchstart',
-      handleTouchStart as unknown as EventListener,
-      { passive: false }
-    );
-    window.addEventListener(
-      'touchmove',
-      handleTouchMove as unknown as EventListener,
-      { passive: false }
-    );
-    window.addEventListener('touchend', handleTouchEnd as EventListener);
+    window.addEventListener('wheel', handleWheel, { passive: false });
+    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('touchstart', handleTouchStart, { passive: false });
+    window.addEventListener('touchmove', handleTouchMove, { passive: false });
+    window.addEventListener('touchend', handleTouchEnd);
 
     return () => {
-      window.removeEventListener(
-        'wheel',
-        handleWheel as unknown as EventListener
-      );
-      window.removeEventListener('scroll', handleScroll as EventListener);
-      window.removeEventListener(
-        'touchstart',
-        handleTouchStart as unknown as EventListener
-      );
-      window.removeEventListener(
-        'touchmove',
-        handleTouchMove as unknown as EventListener
-      );
-      window.removeEventListener('touchend', handleTouchEnd as EventListener);
+      window.removeEventListener('wheel', handleWheel);
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('touchstart', handleTouchStart);
+      window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('touchend', handleTouchEnd);
     };
   }, [scrollProgress, mediaFullyExpanded, touchStartY]);
 
@@ -168,14 +140,11 @@ const ScrollExpandMedia = ({
   const firstWord = title ? title.split(' ')[0] : '';
   const restOfTitle = title ? title.split(' ').slice(1).join(' ') : '';
 
-  // Helper to get Vimeo embed URL with proper params
   const getVimeoEmbedUrl = (src: string) => {
-    // If it's already a player URL, add params
     if (src.includes('player.vimeo.com')) {
       const hasParams = src.includes('?');
       return src + (hasParams ? '&' : '?') + 'background=1&autoplay=1&loop=1&muted=1';
     }
-    // Extract video ID from regular vimeo URL
     const match = src.match(/vimeo\.com\/(\d+)/);
     if (match) {
       return `https://player.vimeo.com/video/${match[1]}?background=1&autoplay=1&loop=1&muted=1`;
@@ -190,11 +159,10 @@ const ScrollExpandMedia = ({
     >
       <section className='relative flex flex-col items-center justify-start min-h-[100dvh]'>
         <div className='relative w-full flex flex-col items-center min-h-[100dvh]'>
-          <motion.div
-            className='absolute inset-0 z-0 h-full'
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 - scrollProgress }}
-            transition={{ duration: 0.1 }}
+          {/* Background image with fade */}
+          <div
+            className='absolute inset-0 z-0 h-full transition-opacity duration-100'
+            style={{ opacity: 1 - scrollProgress }}
           >
             <Image
               src={bgImageSrc}
@@ -209,12 +177,13 @@ const ScrollExpandMedia = ({
               priority
             />
             <div className='absolute inset-0 bg-black/10' />
-          </motion.div>
+          </div>
 
           <div className='container mx-auto flex flex-col items-center justify-start relative z-10'>
             <div className='flex flex-col items-center justify-center w-full h-[100dvh] relative'>
+              {/* Expanding media container */}
               <div
-                className='absolute z-0 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 transition-none rounded-2xl overflow-hidden'
+                className='absolute z-0 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-2xl overflow-hidden'
                 style={{
                   width: `${mediaWidth}px`,
                   height: `${mediaHeight}px`,
@@ -237,11 +206,9 @@ const ScrollExpandMedia = ({
                       className='absolute inset-0 z-10'
                       style={{ pointerEvents: 'none' }}
                     />
-                    <motion.div
-                      className='absolute inset-0 bg-black/30 rounded-xl'
-                      initial={{ opacity: 0.7 }}
-                      animate={{ opacity: 0.5 - scrollProgress * 0.3 }}
-                      transition={{ duration: 0.2 }}
+                    <div
+                      className='absolute inset-0 bg-black/30 rounded-xl transition-opacity duration-200'
+                      style={{ opacity: 0.5 - scrollProgress * 0.3 }}
                     />
                   </div>
                 ) : mediaType === 'video' ? (
@@ -267,13 +234,10 @@ const ScrollExpandMedia = ({
                       <div
                         className='absolute inset-0 z-10'
                         style={{ pointerEvents: 'none' }}
-                      ></div>
-
-                      <motion.div
-                        className='absolute inset-0 bg-black/30 rounded-xl'
-                        initial={{ opacity: 0.7 }}
-                        animate={{ opacity: 0.5 - scrollProgress * 0.3 }}
-                        transition={{ duration: 0.2 }}
+                      />
+                      <div
+                        className='absolute inset-0 bg-black/30 rounded-xl transition-opacity duration-200'
+                        style={{ opacity: 0.5 - scrollProgress * 0.3 }}
                       />
                     </div>
                   ) : (
@@ -294,13 +258,10 @@ const ScrollExpandMedia = ({
                       <div
                         className='absolute inset-0 z-10'
                         style={{ pointerEvents: 'none' }}
-                      ></div>
-
-                      <motion.div
-                        className='absolute inset-0 bg-black/30 rounded-xl'
-                        initial={{ opacity: 0.7 }}
-                        animate={{ opacity: 0.5 - scrollProgress * 0.3 }}
-                        transition={{ duration: 0.2 }}
+                      />
+                      <div
+                        className='absolute inset-0 bg-black/30 rounded-xl transition-opacity duration-200'
+                        style={{ opacity: 0.5 - scrollProgress * 0.3 }}
                       />
                     </div>
                   )
@@ -313,17 +274,15 @@ const ScrollExpandMedia = ({
                       height={720}
                       className='w-full h-full object-cover rounded-xl'
                     />
-
-                    <motion.div
-                      className='absolute inset-0 bg-black/50 rounded-xl'
-                      initial={{ opacity: 0.7 }}
-                      animate={{ opacity: 0.7 - scrollProgress * 0.3 }}
-                      transition={{ duration: 0.2 }}
+                    <div
+                      className='absolute inset-0 bg-black/50 rounded-xl transition-opacity duration-200'
+                      style={{ opacity: 0.7 - scrollProgress * 0.3 }}
                     />
                   </div>
                 )}
 
-                <div className='flex flex-col items-center text-center relative z-10 mt-4 transition-none'>
+                {/* Media overlay text */}
+                <div className='flex flex-col items-center text-center relative z-10 mt-4'>
                   {date && (
                     <p
                       className='text-2xl text-white/60'
@@ -343,34 +302,34 @@ const ScrollExpandMedia = ({
                 </div>
               </div>
 
+              {/* Title text */}
               <div
-                className={`flex items-center justify-center text-center gap-4 w-full relative z-10 transition-none flex-col ${
+                className={`flex items-center justify-center text-center gap-4 w-full relative z-10 flex-col ${
                   textBlend ? 'mix-blend-difference' : 'mix-blend-normal'
                 }`}
               >
-                <motion.h2
-                  className='text-4xl md:text-5xl lg:text-6xl font-bold text-white transition-none'
+                <h2
+                  className='text-4xl md:text-5xl lg:text-6xl font-bold text-white'
                   style={{ transform: `translateX(-${textTranslateX}vw)` }}
                 >
                   {firstWord}
-                </motion.h2>
-                <motion.h2
-                  className='text-4xl md:text-5xl lg:text-6xl font-bold text-center text-white transition-none'
+                </h2>
+                <h2
+                  className='text-4xl md:text-5xl lg:text-6xl font-bold text-center text-white'
                   style={{ transform: `translateX(${textTranslateX}vw)` }}
                 >
                   {restOfTitle}
-                </motion.h2>
+                </h2>
               </div>
             </div>
 
-            <motion.section
-              className='flex flex-col w-full px-8 py-10 md:px-16 lg:py-20'
-              initial={{ opacity: 0 }}
-              animate={{ opacity: showContent ? 1 : 0 }}
-              transition={{ duration: 0.7 }}
+            {/* Content section that appears after expansion */}
+            <section
+              className='flex flex-col w-full px-8 py-10 md:px-16 lg:py-20 transition-opacity duration-700'
+              style={{ opacity: showContent ? 1 : 0 }}
             >
               {children}
-            </motion.section>
+            </section>
           </div>
         </div>
       </section>
