@@ -67,8 +67,7 @@ export function Navigation() {
               alt="PROMPT & SÖHNE"
               width={200}
               height={40}
-              className="h-8 w-auto text-foreground"
-              style={{ filter: "invert(0)" }}
+              className="h-8 w-auto invert"
               priority
             />
           </Link>

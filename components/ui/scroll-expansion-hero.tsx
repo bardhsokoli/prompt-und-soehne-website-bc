@@ -86,7 +86,8 @@ const ScrollExpandMedia = ({
         e.preventDefault();
       } else if (!mediaFullyExpanded) {
         e.preventDefault();
-        const scrollFactor = deltaY < 0 ? 0.008 : 0.005;
+        // Increase sensitivity for mobile, especially when scrolling back
+        const scrollFactor = deltaY < 0 ? 0.008 : 0.005; // Higher sensitivity for scrolling back
         const scrollDelta = deltaY * scrollFactor;
         const newProgress = Math.min(
           Math.max(scrollProgress + scrollDelta, 0),
@@ -161,11 +162,26 @@ const ScrollExpandMedia = ({
   }, []);
 
   const mediaWidth = 300 + scrollProgress * (isMobileState ? 650 : 1250);
-  const mediaHeight = 200 + scrollProgress * (isMobileState ? 300 : 500);
+  const mediaHeight = 400 + scrollProgress * (isMobileState ? 200 : 400);
   const textTranslateX = scrollProgress * (isMobileState ? 180 : 150);
 
   const firstWord = title ? title.split(' ')[0] : '';
   const restOfTitle = title ? title.split(' ').slice(1).join(' ') : '';
+
+  // Helper to get Vimeo embed URL with proper params
+  const getVimeoEmbedUrl = (src: string) => {
+    // If it's already a player URL, add params
+    if (src.includes('player.vimeo.com')) {
+      const hasParams = src.includes('?');
+      return src + (hasParams ? '&' : '?') + 'background=1&autoplay=1&loop=1&muted=1';
+    }
+    // Extract video ID from regular vimeo URL
+    const match = src.match(/vimeo\.com\/(\d+)/);
+    if (match) {
+      return `https://player.vimeo.com/video/${match[1]}?background=1&autoplay=1&loop=1&muted=1`;
+    }
+    return src;
+  };
 
   return (
     <div
@@ -192,7 +208,7 @@ const ScrollExpandMedia = ({
               }}
               priority
             />
-            <div className='absolute inset-0 bg-black/30' />
+            <div className='absolute inset-0 bg-black/10' />
           </motion.div>
 
           <div className='container mx-auto flex flex-col items-center justify-start relative z-10'>
@@ -204,13 +220,13 @@ const ScrollExpandMedia = ({
                   height: `${mediaHeight}px`,
                   maxWidth: '95vw',
                   maxHeight: '85vh',
-                  boxShadow: '0px 0px 50px rgba(0, 0, 0, 0.5)',
+                  boxShadow: '0px 0px 50px rgba(0, 0, 0, 0.3)',
                 }}
               >
                 {mediaType === 'vimeo' ? (
                   <div className='relative w-full h-full pointer-events-none'>
                     <iframe
-                      src={mediaSrc}
+                      src={getVimeoEmbedUrl(mediaSrc)}
                       className='absolute inset-0 w-full h-full rounded-xl'
                       frameBorder='0'
                       allow='autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media'
@@ -222,9 +238,9 @@ const ScrollExpandMedia = ({
                       style={{ pointerEvents: 'none' }}
                     />
                     <motion.div
-                      className='absolute inset-0 bg-black/20 rounded-xl'
-                      initial={{ opacity: 0.5 }}
-                      animate={{ opacity: 0.3 - scrollProgress * 0.3 }}
+                      className='absolute inset-0 bg-black/30 rounded-xl'
+                      initial={{ opacity: 0.7 }}
+                      animate={{ opacity: 0.5 - scrollProgress * 0.3 }}
                       transition={{ duration: 0.2 }}
                     />
                   </div>
@@ -251,7 +267,8 @@ const ScrollExpandMedia = ({
                       <div
                         className='absolute inset-0 z-10'
                         style={{ pointerEvents: 'none' }}
-                      />
+                      ></div>
+
                       <motion.div
                         className='absolute inset-0 bg-black/30 rounded-xl'
                         initial={{ opacity: 0.7 }}
@@ -277,7 +294,8 @@ const ScrollExpandMedia = ({
                       <div
                         className='absolute inset-0 z-10'
                         style={{ pointerEvents: 'none' }}
-                      />
+                      ></div>
+
                       <motion.div
                         className='absolute inset-0 bg-black/30 rounded-xl'
                         initial={{ opacity: 0.7 }}
@@ -295,6 +313,7 @@ const ScrollExpandMedia = ({
                       height={720}
                       className='w-full h-full object-cover rounded-xl'
                     />
+
                     <motion.div
                       className='absolute inset-0 bg-black/50 rounded-xl'
                       initial={{ opacity: 0.7 }}
@@ -307,7 +326,7 @@ const ScrollExpandMedia = ({
                 <div className='flex flex-col items-center text-center relative z-10 mt-4 transition-none'>
                   {date && (
                     <p
-                      className='text-2xl text-foreground/60'
+                      className='text-2xl text-white/60'
                       style={{ transform: `translateX(-${textTranslateX}vw)` }}
                     >
                       {date}
@@ -315,7 +334,7 @@ const ScrollExpandMedia = ({
                   )}
                   {scrollToExpand && (
                     <p
-                      className='text-foreground/60 font-light text-center text-sm tracking-widest uppercase'
+                      className='text-white/60 font-light text-center text-sm tracking-widest uppercase'
                       style={{ transform: `translateX(${textTranslateX}vw)` }}
                     >
                       {scrollToExpand}
@@ -330,13 +349,13 @@ const ScrollExpandMedia = ({
                 }`}
               >
                 <motion.h2
-                  className='text-4xl md:text-5xl lg:text-6xl font-bold text-foreground transition-none'
+                  className='text-4xl md:text-5xl lg:text-6xl font-bold text-white transition-none'
                   style={{ transform: `translateX(-${textTranslateX}vw)` }}
                 >
                   {firstWord}
                 </motion.h2>
                 <motion.h2
-                  className='text-4xl md:text-5xl lg:text-6xl font-bold text-center text-foreground transition-none'
+                  className='text-4xl md:text-5xl lg:text-6xl font-bold text-center text-white transition-none'
                   style={{ transform: `translateX(${textTranslateX}vw)` }}
                 >
                   {restOfTitle}
