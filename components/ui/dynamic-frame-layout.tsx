@@ -1,5 +1,3 @@
-Paste this whole file into components/ui/dynamic-frame-layout.tsx:
-
 "use client"
 import { useRef, useState } from "react"
 import Link from "next/link"
