@@ -92,7 +92,7 @@ export default function WorkPage() {
           <img
             src="/logo.svg"
             alt="PROMPT &amp; SÖHNE"
-            className="h-7 w-auto opacity-85 hover:opacity-100 transition-opacity"
+            className="h-7 w-auto invert opacity-85 hover:opacity-100 transition-opacity"
           />
         </Link>
       </div>
