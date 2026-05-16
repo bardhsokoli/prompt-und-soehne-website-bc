@@ -3,20 +3,31 @@ import { Inter } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 
-const inter = Inter({ 
-  subsets: ["latin"],
-  weight: ["100", "200", "300", "400", "500", "600", "700"],
-  variable: "--font-inter"
-});
+const inter = Inter({
+  subsets: ['latin'],
+  weight: ['100', '200', '300', '400', '500', '600', '700'],
+  variable: '--font-inter',
+})
 
 export const metadata: Metadata = {
   title: 'PROMPT & SÖHNE | Creative Agency Vienna',
-  description: 'Vienna-based creative agency specializing in Video, Photography, Graphic Design, Marketing Solutions, AI Content Production, Web Design & Brand Identity.',
-  keywords: ['creative agency', 'Vienna', 'video production', 'photography', 'graphic design', 'AI content', 'marketing', 'brand identity'],
+  description:
+    'Vienna-based creative agency specializing in Video, Photography, Graphic Design, Marketing Solutions, AI Content Production, Web Design & Brand Identity.',
+  keywords: [
+    'creative agency',
+    'Vienna',
+    'video production',
+    'photography',
+    'graphic design',
+    'AI content',
+    'marketing',
+    'brand identity',
+  ],
   authors: [{ name: 'Prompt Studio BPC GmbH' }],
   openGraph: {
     title: 'PROMPT & SÖHNE | Creative Agency Vienna',
-    description: 'Vienna-based creative agency specializing in Video, Photography, Graphic Design, Marketing Solutions, AI Content Production, Web Design & Brand Identity.',
+    description:
+      'Vienna-based creative agency specializing in Video, Photography, Graphic Design, Marketing Solutions, AI Content Production, Web Design & Brand Identity.',
     url: 'https://promptundsoehne.com',
     siteName: 'PROMPT & SÖHNE',
     locale: 'en_AT',
@@ -25,7 +36,8 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'PROMPT & SÖHNE | Creative Agency Vienna',
-    description: 'Vienna-based creative agency specializing in Video, Photography, Graphic Design, Marketing Solutions, AI Content Production, Web Design & Brand Identity.',
+    description:
+      'Vienna-based creative agency specializing in Video, Photography, Graphic Design, Marketing Solutions, AI Content Production, Web Design & Brand Identity.',
   },
   robots: {
     index: true,
@@ -57,6 +69,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
+      <head>
+        <link rel="stylesheet" href="https://use.typekit.net/bek7edx.css" />
+      </head>
       <body className={`${inter.variable} font-sans antialiased`}>
         {children}
         <Analytics />
