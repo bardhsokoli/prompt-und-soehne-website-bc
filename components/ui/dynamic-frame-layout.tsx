@@ -1,8 +1,8 @@
-"use client"
+Paste this whole file into components/ui/dynamic-frame-layout.tsx:
 
+"use client"
 import { useRef, useState } from "react"
 import Link from "next/link"
-
 export interface PortfolioItem {
   title: string
   category: string
@@ -10,35 +10,25 @@ export interface PortfolioItem {
   poster?: string
   link?: string
 }
-
 interface DynamicFrameLayoutProps {
   items: PortfolioItem[]
 }
-
 function PortfolioTile({
   item,
-  isRowHovered,
-  isColHovered,
-  isHovered,
   onMouseEnter,
   onMouseLeave,
 }: {
   item: PortfolioItem
-  isRowHovered: boolean
-  isColHovered: boolean
-  isHovered: boolean
   onMouseEnter: () => void
   onMouseLeave: () => void
 }) {
   const videoRef = useRef<HTMLVideoElement>(null)
-
   const handleMouseEnter = () => {
     onMouseEnter()
     if (videoRef.current && item.video) {
       videoRef.current.play().catch(() => {})
     }
   }
-
   const handleMouseLeave = () => {
     onMouseLeave()
     if (videoRef.current && item.video) {
@@ -46,14 +36,12 @@ function PortfolioTile({
       videoRef.current.currentTime = 0
     }
   }
-
   const content = (
     <div
-      className="relative w-full h-full overflow-hidden rounded-sm bg-card group"
+      className="relative w-full h-full overflow-hidden rounded-xl bg-card group"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      {/* Media */}
       {item.video ? (
         <video
           ref={videoRef}
@@ -75,22 +63,17 @@ function PortfolioTile({
       ) : (
         <div className="absolute inset-0 bg-secondary" />
       )}
-
-      {/* Gradient overlay — always subtle, stronger on hover */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent opacity-60 group-hover:opacity-90 transition-opacity duration-500" />
-
-      {/* Text */}
       <div className="absolute bottom-0 left-0 p-4 md:p-5 translate-y-1 group-hover:translate-y-0 transition-transform duration-400">
         <p className="text-[10px] md:text-xs font-light tracking-[0.18em] uppercase text-white/50 mb-1">
           {item.category}
         </p>
-        <h3 className="text-sm md:text-base font-light tracking-wide text-white leading-tight">
+        <h3 className="text-sm md:text-[15px] font-normal tracking-[0.02em] text-white leading-tight">
           {item.title}
         </h3>
       </div>
     </div>
   )
-
   return item.link ? (
     <Link href={item.link} className="block w-full h-full">
       {content}
@@ -99,30 +82,23 @@ function PortfolioTile({
     content
   )
 }
-
 export function DynamicFrameLayout({ items }: DynamicFrameLayoutProps) {
   const [hoveredRow, setHoveredRow] = useState<number | null>(null)
   const [hoveredCol, setHoveredCol] = useState<number | null>(null)
-
   const cols = 3
   const rows = Math.ceil(items.length / cols)
-
-  // flex-grow values: hovered = 2, others = 1
   const getColGrow = (col: number) => {
     if (hoveredCol === null) return "flex-1"
-    return hoveredCol === col ? "flex-[2]" : "flex-[0.75]"
+    return hoveredCol === col ? "flex-[1.6]" : "flex-[0.9]"
   }
-
   const getRowGrow = (row: number) => {
     if (hoveredRow === null) return "flex-1"
-    return hoveredRow === row ? "flex-[2]" : "flex-[0.75]"
+    return hoveredRow === row ? "flex-[1.6]" : "flex-[0.9]"
   }
-
   return (
     <>
-      {/* Desktop: dynamic 3x3 grid */}
       <div
-        className="hidden md:flex flex-col gap-1.5"
+        className="hidden lg:flex flex-col gap-1.5"
         style={{ height: "min(80vh, 720px)" }}
       >
         {Array.from({ length: rows }).map((_, rowIdx) => (
@@ -133,7 +109,9 @@ export function DynamicFrameLayout({ items }: DynamicFrameLayoutProps) {
             {Array.from({ length: cols }).map((_, colIdx) => {
               const itemIdx = rowIdx * cols + colIdx
               const item = items[itemIdx]
-              if (!item) return <div key={colIdx} className="flex-1" />
+              if (!item) {
+                return <div key={colIdx} className="flex-1" />
+              }
               return (
                 <div
                   key={colIdx}
@@ -141,9 +119,6 @@ export function DynamicFrameLayout({ items }: DynamicFrameLayoutProps) {
                 >
                   <PortfolioTile
                     item={item}
-                    isRowHovered={hoveredRow === rowIdx}
-                    isColHovered={hoveredCol === colIdx}
-                    isHovered={hoveredRow === rowIdx && hoveredCol === colIdx}
                     onMouseEnter={() => {
                       setHoveredRow(rowIdx)
                       setHoveredCol(colIdx)
@@ -159,16 +134,11 @@ export function DynamicFrameLayout({ items }: DynamicFrameLayoutProps) {
           </div>
         ))}
       </div>
-
-      {/* Mobile / tablet: simple stacked grid */}
-      <div className="md:hidden grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div className="lg:hidden grid grid-cols-1 sm:grid-cols-2 gap-3">
         {items.map((item, idx) => (
           <div key={idx} className="aspect-[4/3]">
             <PortfolioTile
               item={item}
-              isRowHovered={false}
-              isColHovered={false}
-              isHovered={false}
               onMouseEnter={() => {}}
               onMouseLeave={() => {}}
             />
