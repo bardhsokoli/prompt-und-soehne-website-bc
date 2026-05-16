@@ -76,16 +76,7 @@ function PortfolioTile({
           <div className="absolute inset-0 bg-zinc-900" />
         )}
 
-        <div className="absolute inset-0 bg-black/20" />
-
-        <div className="absolute bottom-0 left-0 p-4 md:p-5">
-          <p className="text-[10px] md:text-xs font-light tracking-[0.18em] uppercase text-white/60 mb-1">
-            {item.category}
-          </p>
-          <h3 className="text-sm md:text-[15px] font-normal tracking-[0.02em] text-white leading-tight">
-            {item.title}
-          </h3>
-        </div>
+        <div className="absolute inset-0 bg-black/15" />
       </div>
 
       <div
@@ -99,7 +90,7 @@ function PortfolioTile({
             fontFamily: '"instrument-serif", serif',
             fontStyle: "italic",
             fontWeight: 400,
-            fontSize: "clamp(2rem, 3.8vw, 4.25rem)",
+            fontSize: "clamp(1.6rem, 3vw, 3.4rem)",
             lineHeight: 0.95,
           }}
         >
