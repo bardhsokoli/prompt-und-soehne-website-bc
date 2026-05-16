@@ -1,141 +1,187 @@
-import Link from "next/link"
-import type { Metadata } from "next"
-import { ArrowLeft } from "lucide-react"
-import { DynamicFrameLayout, type PortfolioItem } from "@/components/ui/dynamic-frame-layout"
+"use client"
 
-export const metadata: Metadata = {
-  title: "Work | PROMPT & SÖHNE",
-  description:
-    "A curated selection of visual worlds across design, motion, AI, and image-making.",
+import { useRef, useState } from "react"
+import Link from "next/link"
+
+export interface PortfolioItem {
+  title: string
+  category: string
+  video?: string
+  poster?: string
+  link?: string
 }
 
-const portfolioItems: PortfolioItem[] = [
-  {
-    title: "SIGNAL",
-    category: "Motion & AI",
-    poster:
-      "https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?w=900&h=700&fit=crop",
-    link: "#",
-  },
-  {
-    title: "Francis",
-    category: "Brand Film",
-    poster:
-      "https://images.unsplash.com/photo-1509631179647-0177331693ae?w=900&h=700&fit=crop",
-    link: "#",
-  },
-  {
-    title: "Reanimatori",
-    category: "Visual Identity",
-    poster:
-      "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=900&h=700&fit=crop",
-    link: "#",
-  },
-  {
-    title: "Luxury Hair Clinic",
-    category: "Photography",
-    poster:
-      "https://images.unsplash.com/photo-1519682337058-a94d519337bc?w=900&h=700&fit=crop",
-    link: "#",
-  },
-  {
-    title: "La Dor\u00e9e",
-    category: "Editorial & Design",
-    poster:
-      "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=900&h=700&fit=crop",
-    link: "#",
-  },
-  {
-    title: "Katana Heroes",
-    category: "Campaign",
-    poster:
-      "https://images.unsplash.com/photo-1486325212027-8081e485255e?w=900&h=700&fit=crop",
-    link: "#",
-  },
-  {
-    title: "String Solutions",
-    category: "Web & Brand",
-    poster:
-      "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=900&h=700&fit=crop",
-    link: "#",
-  },
-  {
-    title: "O Club",
-    category: "Event & Photography",
-    poster:
-      "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=900&h=700&fit=crop",
-    link: "#",
-  },
-  {
-    title: "Direct the Machine",
-    category: "AI Production",
-    poster:
-      "https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=900&h=700&fit=crop",
-    link: "#",
-  },
-]
+interface DynamicFrameLayoutProps {
+  items: PortfolioItem[]
+}
 
-export default function WorkPage() {
-  return (
-    <main className="min-h-screen bg-background text-foreground">
-      {/* Top bar */}
-      <div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-10 py-6">
-        <Link
-          href="/"
-          className="flex items-center gap-2 text-xs font-light tracking-[0.15em] uppercase text-muted-foreground hover:text-foreground transition-colors duration-200"
-        >
-          <ArrowLeft className="w-3.5 h-3.5" />
-          Back to Home
-        </Link>
+function PortfolioTile({
+  item,
+  isHovered,
+  onMouseEnter,
+  onMouseLeave,
+}: {
+  item: PortfolioItem
+  isHovered: boolean
+  onMouseEnter: () => void
+  onMouseLeave: () => void
+}) {
+  const videoRef = useRef<HTMLVideoElement>(null)
 
-        <Link href="/" aria-label="PROMPT &amp; SÖHNE">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/logo.svg"
-            alt="PROMPT &amp; SÖHNE"
-            className="h-7 w-auto invert opacity-80 hover:opacity-100 transition-opacity"
+  const handleMouseEnter = () => {
+    onMouseEnter()
+    if (videoRef.current && item.video) {
+      videoRef.current.play().catch(() => {})
+    }
+  }
+
+  const handleMouseLeave = () => {
+    onMouseLeave()
+    if (videoRef.current && item.video) {
+      videoRef.current.pause()
+      videoRef.current.currentTime = 0
+    }
+  }
+
+  const content = (
+    <div
+      className="relative w-full h-full overflow-hidden bg-black group"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
+      <div
+        className={`absolute inset-0 transition-opacity duration-500 ${
+          isHovered ? "opacity-100" : "opacity-0"
+        }`}
+      >
+        {item.video ? (
+          <video
+            ref={videoRef}
+            src={item.video}
+            poster={item.poster}
+            muted
+            loop
+            playsInline
+            preload="none"
+            className="absolute inset-0 w-full h-full object-cover"
           />
-        </Link>
+        ) : item.poster ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={item.poster}
+            alt={item.title}
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+        ) : (
+          <div className="absolute inset-0 bg-zinc-900" />
+        )}
+
+        <div className="absolute inset-0 bg-black/15" />
       </div>
 
-      {/* Header */}
-      <section className="pt-36 pb-14 md:pt-44 md:pb-16 px-6 md:px-10 max-w-7xl mx-auto">
-        <p className="text-[10px] md:text-xs font-light tracking-[0.22em] uppercase text-muted-foreground mb-5">
-          Selected Work
-        </p>
-        <h1 className="text-4xl md:text-6xl lg:text-7xl font-light tracking-tight text-foreground leading-[1.05] text-balance mb-6">
-          Built to be seen.
-        </h1>
-        <p className="text-sm md:text-base font-light text-muted-foreground max-w-xl leading-relaxed">
-          A curated selection of visual worlds across design, motion, AI, and
-          image-making.
-        </p>
-      </section>
+      <div
+        className={`absolute inset-0 flex items-center justify-center transition-opacity duration-500 ${
+          isHovered ? "opacity-0" : "opacity-100"
+        }`}
+      >
+        <span
+          className="text-white text-center px-6"
+          style={{
+            fontFamily: '"instrument-serif", serif',
+            fontStyle: "italic",
+            fontWeight: 400,
+            fontSize: "clamp(1.6rem, 3vw, 3.4rem)",
+            lineHeight: 0.95,
+          }}
+        >
+          {item.category}
+        </span>
+      </div>
 
-      {/* Portfolio grid */}
-      <section className="px-4 md:px-6 lg:px-10 max-w-7xl mx-auto pb-24 md:pb-32">
-        <DynamicFrameLayout items={portfolioItems} />
-      </section>
+      <div className="absolute inset-0 border border-white/10 pointer-events-none" />
+    </div>
+  )
 
-      {/* CTA */}
-      <section className="border-t border-border px-6 md:px-10 py-20 md:py-28 max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-8">
-          <div>
-            <h2 className="text-3xl md:text-5xl font-light tracking-tight text-foreground mb-4 text-balance">
-              Have a project in mind?
-            </h2>
-            <p className="text-sm md:text-base font-light text-muted-foreground">
-              Let&apos;s build something people remember.
-            </p>
-          </div>
-          <Link
-            href="/#contact"
-            className="inline-flex items-center gap-2 px-7 py-3.5 border border-foreground/20 text-xs font-light tracking-[0.18em] uppercase text-foreground hover:bg-foreground hover:text-background transition-all duration-300 rounded-sm whitespace-nowrap"
+  return item.link ? (
+    <Link href={item.link} className="block w-full h-full">
+      {content}
+    </Link>
+  ) : (
+    content
+  )
+}
+
+export function DynamicFrameLayout({ items }: DynamicFrameLayoutProps) {
+  const [hoveredRow, setHoveredRow] = useState<number | null>(null)
+  const [hoveredCol, setHoveredCol] = useState<number | null>(null)
+
+  const cols = 3
+  const rows = Math.ceil(items.length / cols)
+
+  const getColGrow = (col: number) => {
+    if (hoveredCol === null) return "flex-1"
+    return hoveredCol === col ? "flex-[1.6]" : "flex-[0.9]"
+  }
+
+  const getRowGrow = (row: number) => {
+    if (hoveredRow === null) return "flex-1"
+    return hoveredRow === row ? "flex-[1.6]" : "flex-[0.9]"
+  }
+
+  return (
+    <>
+      <div className="hidden lg:flex flex-col gap-[2px] w-full h-screen">
+        {Array.from({ length: rows }).map((_, rowIdx) => (
+          <div
+            key={rowIdx}
+            className={`flex flex-row gap-[2px] transition-all duration-500 ease-[cubic-bezier(0.25,0.46,0.45,0.94)] min-h-0 ${getRowGrow(rowIdx)}`}
           >
-            Get in touch
-          </Link>
-        </div>
-      </section>
-    </main>
+            {Array.from({ length: cols }).map((_, colIdx) => {
+              const itemIdx = rowIdx * cols + colIdx
+              const item = items[itemIdx]
+
+              if (!item) {
+                return <div key={colIdx} className="flex-1 bg-black" />
+              }
+
+              const isHovered = hoveredRow === rowIdx && hoveredCol === colIdx
+
+              return (
+                <div
+                  key={colIdx}
+                  className={`transition-all duration-500 ease-[cubic-bezier(0.25,0.46,0.45,0.94)] min-w-0 min-h-0 ${getColGrow(colIdx)}`}
+                >
+                  <PortfolioTile
+                    item={item}
+                    isHovered={isHovered}
+                    onMouseEnter={() => {
+                      setHoveredRow(rowIdx)
+                      setHoveredCol(colIdx)
+                    }}
+                    onMouseLeave={() => {
+                      setHoveredRow(null)
+                      setHoveredCol(null)
+                    }}
+                  />
+                </div>
+              )
+            })}
+          </div>
+        ))}
+      </div>
+
+      <div className="lg:hidden grid grid-cols-1 sm:grid-cols-2 gap-[2px] min-h-screen bg-black">
+        {items.map((item, idx) => (
+          <div key={idx} className="aspect-[4/3]">
+            <PortfolioTile
+              item={item}
+              isHovered={true}
+              onMouseEnter={() => {}}
+              onMouseLeave={() => {}}
+            />
+          </div>
+        ))}
+      </div>
+    </>
   )
 }
