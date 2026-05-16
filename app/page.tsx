@@ -97,23 +97,11 @@ export default function WorkPage() {
         </Link>
       </div>
 
-      <section className="hidden lg:block h-screen w-full pt-24">
+      <section className="hidden lg:block h-screen w-full pt-0">
         <DynamicFrameLayout items={portfolioItems} />
       </section>
 
       <section className="lg:hidden pt-28 px-4 pb-10">
-        <div className="mb-8">
-          <p className="text-[10px] tracking-[0.22em] uppercase text-white/45 mb-4">
-            Selected Work
-          </p>
-          <h1 className="text-4xl font-light tracking-tight leading-[1.02] mb-4">
-            Built to be seen.
-          </h1>
-          <p className="text-sm text-white/65 max-w-md leading-relaxed">
-            A curated selection of visual worlds across design, motion, AI, and image-making.
-          </p>
-        </div>
-
         <DynamicFrameLayout items={portfolioItems} />
       </section>
     </main>
