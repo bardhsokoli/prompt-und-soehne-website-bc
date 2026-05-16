@@ -98,10 +98,13 @@ export default function WorkPage() {
       </div>
 
       <section className="hidden lg:block h-screen w-full pt-0">
-        <DynamicFrameLayout items={portfolioItems} />
+        <div className="h-[88px] w-full bg-black" />
+        <div className="h-[calc(100vh-88px)] w-full">
+          <DynamicFrameLayout items={portfolioItems} />
+        </div>
       </section>
 
-      <section className="lg:hidden pt-28 px-4 pb-10">
+      <section className="lg:hidden pt-24">
         <DynamicFrameLayout items={portfolioItems} />
       </section>
     </main>
