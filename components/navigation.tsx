@@ -22,10 +22,10 @@ export function Navigation() {
   }, [])
 
   const navLinks = [
-    { href: "#work", label: t("nav.work") },
-    { href: "#services", label: t("nav.services") },
-    { href: "#about", label: t("nav.about") },
-    { href: "#contact", label: t("nav.contact") },
+    { href: "/work", label: t("nav.work") },
+    { href: "/#services", label: t("nav.services") },
+    { href: "/#about", label: t("nav.about") },
+    { href: "/#contact", label: t("nav.contact") },
   ]
 
   return (
@@ -36,7 +36,6 @@ export function Navigation() {
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-20 items-center justify-between">
-          {/* Language Switcher - Far Left */}
           <div className="flex items-center gap-1">
             <button
               onClick={() => setLanguage("de")}
@@ -57,11 +56,7 @@ export function Navigation() {
             </button>
           </div>
 
-          {/* Logo - Centered */}
-          <Link
-            href="/"
-            className="absolute left-1/2 -translate-x-1/2"
-          >
+          <Link href="/" className="absolute left-1/2 -translate-x-1/2">
             <Image
               src="/logo.svg"
               alt="PROMPT & SÖHNE"
@@ -72,20 +67,18 @@ export function Navigation() {
             />
           </Link>
 
-          {/* Desktop Nav Links - Far Right */}
           <div className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => (
-              <a
+              <Link
                 key={link.href}
                 href={link.href}
                 className="text-sm font-light tracking-wider uppercase text-foreground/80 hover:text-foreground transition-colors"
               >
                 {link.label}
-              </a>
+              </Link>
             ))}
           </div>
 
-          {/* Mobile Menu - Far Right */}
           <div className="md:hidden">
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <SheetTrigger asChild>
@@ -97,14 +90,14 @@ export function Navigation() {
               <SheetContent side="right" className="w-full sm:w-80 bg-background border-border">
                 <div className="flex flex-col gap-8 mt-12">
                   {navLinks.map((link) => (
-                    <a
+                    <Link
                       key={link.href}
                       href={link.href}
                       onClick={() => setIsOpen(false)}
                       className="text-2xl font-light tracking-wider uppercase text-foreground/80 hover:text-foreground transition-colors"
                     >
                       {link.label}
-                    </a>
+                    </Link>
                   ))}
                 </div>
               </SheetContent>
